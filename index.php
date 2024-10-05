@@ -199,125 +199,125 @@
     <?php include_once('js_files.php') ?>
     <!-- End Core JS Files -->
     <script>
-        $(document).ready(function() {
+    $(document).ready(function() {
 
-            //alert("OK");
+        //alert("OK");
 
-            getStatistiquesStagiaire();
+        getStatistiquesStagiaire();
 
 
-            //---------- Ouvrir Page Liste Stages ----------------------------------
-            function getStatistiquesStagiaire() {
-                //alert("IndexAjax Debut");
+        //---------- Ouvrir Page Liste Stages ----------------------------------
+        function getStatistiquesStagiaire() {
+            //alert("IndexAjax Debut");
 
-                $.ajax({
-                    url: 'statistiques_stagiaire.php', // Le script PHP pour récupérer la liste des stages
-                    type: 'GET',
-                    /*data: {
-                        code_stagiaire: code_stagiaire
-                    }, // On passe le code du stagiaire*/
-                    dataType: 'json', // On attend du JSON en réponse
-                    success: function(response) {
-                        if (response.success) {
-                            //alert('Info: ' + response.total_stagiaires);
-                        } else {
-                            alert('Alert: ' + response.message);
-                        }
-                        $('#totalStagiaire').text(response.total_stagiaires);
-                        $('#nbreStage').text(response.nbre_stage);
-                        $('#nbreStageEnCours').text(response.nbre_stage_encours);
-                        $('#nbreStageDebutMoisEnCours').text(response.nbre_stage_debut_mois_encours);
-                        $('#totalEcole').text(response.nbre_ecoles);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error("Erreur AJAX:", textStatus, errorThrown);
-                        alert('Erreur lors du chargement des stages.');
+            $.ajax({
+                url: 'statistiques_stagiaire.php', // Le script PHP pour récupérer la liste des stages
+                type: 'GET',
+                /*data: {
+                    code_stagiaire: code_stagiaire
+                }, // On passe le code du stagiaire*/
+                dataType: 'json', // On attend du JSON en réponse
+                success: function(response) {
+                    if (response.success) {
+                        //alert('Info: ' + response.total_stagiaires);
+                    } else {
+                        alert('Alert: ' + response.message);
                     }
-                });
-            }
+                    $('#totalStagiaire').text(response.total_stagiaires);
+                    $('#nbreStage').text(response.nbre_stage);
+                    $('#nbreStageEnCours').text(response.nbre_stage_encours);
+                    $('#nbreStageDebutMoisEnCours').text(response.nbre_stage_debut_mois_encours);
+                    $('#totalEcole').text(response.nbre_ecoles);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Erreur AJAX:", textStatus, errorThrown);
+                    alert('Erreur lors du chargement des stages.');
+                }
+            });
+        }
 
 
-            //---- GRAPHIQUES -----------------------------------------
-            // Fonction pour charger les données et créer le graphique
-            function loadAndCreateChart() {
-                $.ajax({
-                    url: 'stagiaires_par_ecole.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            createChart(response.stagiaires_par_ecole);
-                        } else {
-                            console.error('Erreur lors du chargement des données:', response.message);
+        //---- GRAPHIQUES -----------------------------------------
+        // Fonction pour charger les données et créer le graphique
+        function loadAndCreateChart() {
+            $.ajax({
+                url: 'stagiaires_par_ecole.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        createChart(response.stagiaires_par_ecole);
+                    } else {
+                        console.error('Erreur lors du chargement des données:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erreur AJAX:', error);
+                }
+            });
+        }
+
+        // Fonction pour créer le graphique
+        function createChart(data) {
+            var labels = data.map(item => item.ecole);
+            var values = data.map(item => item.nombre_stagiaires);
+
+            var ctx = document.getElementById('stagiairesChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nombre de stagiaires',
+                        data: values,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nombre de stagiaires par école'
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: Math.round,
+                            font: {
+                                weight: 'bold'
+                            }
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Erreur AJAX:', error);
-                    }
-                });
-            }
-
-            // Fonction pour créer le graphique
-            function createChart(data) {
-                var labels = data.map(item => item.ecole);
-                var values = data.map(item => item.nombre_stagiaires);
-
-                var ctx = document.getElementById('stagiairesChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Nombre de stagiaires',
-                            data: values,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Nombre de stagiaires par école'
-                            },
-                            datalabels: {
-                                anchor: 'end',
-                                align: 'top',
-                                formatter: Math.round,
-                                font: {
-                                    weight: 'bold'
-                                }
+                                text: 'Nombre de stagiaires'
                             }
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Nombre de stagiaires'
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Écoles'
-                                }
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Écoles'
                             }
                         }
                     }
-                });
-            }
+                }
+            });
+        }
 
-            // Charger les données et créer le graphique au chargement de la page
-            loadAndCreateChart();
+        // Charger les données et créer le graphique au chargement de la page
+        loadAndCreateChart();
 
 
-        });
+    });
     </script>
 </body>
 
